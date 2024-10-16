@@ -1,0 +1,100 @@
+<div class="container mt-5">
+  <h2>Dynamic Form Builder</h2>
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <div class="form-group mb-3" *ngFor="let field of formFields; let i = index">
+      <label>{{ field.label }}</label>
+
+      <!-- Render input fields dynamically based on type -->
+      <ng-container [ngSwitch]="field.type">
+        <input *ngSwitchCase="'text'" type="text" [formControlName]="field.name" class="form-control"
+          [placeholder]="field.placeholder"
+          [ngClass]="{ 'is-invalid': formGroup.get(field.name)?.invalid && formGroup.get(field.name)?.touched, 'is-valid': formGroup.get(field.name)?.valid && formGroup.get(field.name)?.touched }" />
+
+        <textarea *ngSwitchCase="'textarea'" [formControlName]="field.name" class="form-control"
+          [placeholder]="field.placeholder"
+          [ngClass]="{ 'is-invalid': formGroup.get(field.name)?.invalid && formGroup.get(field.name)?.touched, 'is-valid': formGroup.get(field.name)?.valid && formGroup.get(field.name)?.touched }"></textarea>
+
+        <select *ngSwitchCase="'dropdown'" [formControlName]="field.name" class="form-control"
+          [ngClass]="{ 'is-invalid': formGroup.get(field.name)?.invalid && formGroup.get(field.name)?.touched, 'is-valid': formGroup.get(field.name)?.valid && formGroup.get(field.name)?.touched }">
+          <option *ngFor="let option of field.options" [value]="option">{{ option }}</option>
+        </select>
+
+        <div *ngSwitchCase="'checkbox'" class="form-check">
+          <input type="checkbox" class="form-check-input" [formControlName]="field.name" />
+          <label class="form-check-label">{{ field.placeholder }}</label>
+        </div>
+
+        <div *ngSwitchCase="'radio'">
+          <div class="form-check" *ngFor="let option of field.options">
+            <input type="radio" class="form-check-input" [value]="option" [formControlName]="field.name" />
+            <label class="form-check-label">{{ option }}</label>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Validation message -->
+      <small *ngIf="formGroup.get(field.name)?.invalid && formGroup.get(field.name)?.touched" class="text-danger">
+        {{ field.label }} is required
+      </small>
+
+      <button class="btn btn-danger mt-2" (click)="removeField(i)">Remove</button>
+    </div>
+
+    <button type="button" class="btn btn-primary mb-3" (click)="openFieldModal()">Add Field</button>&nbsp;
+    <button type="submit" class="btn btn-success mb-3">Submit</button>
+  </form>
+
+  <!-- Field Customization Modal -->
+  <div class="modal fade" id="fieldModal" tabindex="-1" aria-labelledby="fieldModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="fieldModalLabel">Add Form Field</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Field Label Input -->
+          <div class="mb-3">
+            <label for="fieldLabel" class="form-label">Field Label</label>
+            <input type="text" id="fieldLabel" class="form-control" [(ngModel)]="newField.label">
+          </div>
+
+          <!-- Field Type Dropdown -->
+          <div class="mb-3">
+            <label for="fieldType" class="form-label">Field Type</label>
+            <select id="fieldType" class="form-select" [(ngModel)]="newField.type">
+              <option value="text">Text Input</option>
+              <option value="textarea">Textarea</option>
+              <option value="dropdown">Dropdown</option>
+              <option value="checkbox">Checkbox</option>
+              <option value="radio">Radio</option>
+            </select>
+          </div>
+
+          <!-- Options for Dropdown or Radio -->
+          <div *ngIf="newField.type === 'dropdown' || newField.type === 'radio'" class="mb-3">
+            <label for="fieldOptions" class="form-label">Options (comma-separated)</label>
+            <input type="text" id="fieldOptions" class="form-control" [(ngModel)]="newField.options">
+          </div>
+
+          <!-- Field Placeholder -->
+          <div class="mb-3">
+            <label for="fieldPlaceholder" class="form-label">Placeholder</label>
+            <input type="text" id="fieldPlaceholder" class="form-control" [(ngModel)]="newField.placeholder">
+          </div>
+
+          <!-- Required Checkbox -->
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="newField.required">
+            <label class="form-check-label">Required</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="saveField()" data-bs-dismiss="modal">Add
+            Field</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
